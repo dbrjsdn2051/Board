@@ -1,5 +1,16 @@
 spring:
   application:
-    name: service
+    name: board-view-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/article_view
+    username: root
+    password: password
+  exposed:
+    show-sql: true
+  data:
+    redis:
+      port: 6379
+      host: localhost
 server:
   port: 9003
