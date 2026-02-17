@@ -1,5 +1,10 @@
 spring:
   application:
-    name: service
+    name: board-like-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/article_like
+    username: root
+    password: password
 server:
   port: 9002
