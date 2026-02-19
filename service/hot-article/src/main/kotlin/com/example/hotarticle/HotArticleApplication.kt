@@ -1,4 +1,4 @@
-package com.example.service
+package com.example.hotarticle
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
