@@ -8,7 +8,11 @@ import com.example.service.repository.CommentRepositoryV2
 import com.example.service.service.request.CommentCreateRequestV2
 import com.example.service.service.response.CommentPageResponse
 import com.example.service.service.response.CommentResponse
-import kuke.board.common.snowflake.Snowflake
+import board.common.event.EventType
+import board.common.event.payload.CommentCreatedEventPayload
+import board.common.event.payload.CommentDeletedEventPayload
+import board.common.outboxmessagerelay.OutboxEventPublisher
+import board.common.snowflake.Snowflake
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -17,6 +21,7 @@ import java.time.LocalDateTime
 class CommentServiceV2(
     private val commentRepository: CommentRepositoryV2,
     private val articleCommentCountRepository: ArticleCommentCountRepository,
+    private val outboxEventPublisher: OutboxEventPublisher,
 ) {
     private val snowflake = Snowflake()
 
@@ -44,6 +49,21 @@ class CommentServiceV2(
                 commentCount = 1L
             }
         }
+
+        outboxEventPublisher.publish(
+            EventType.COMMENT_CREATED,
+            CommentCreatedEventPayload(
+                commentId = comment.id.value,
+                content = comment.content,
+                path = comment.path,
+                articleId = comment.articleId,
+                writerId = comment.writerId,
+                deleted = comment.deleted,
+                createdAt = comment.createdAt,
+                articleCommentCount = count(comment.articleId)
+            ),
+            comment.articleId
+        )
 
         return CommentResponse.from(comment)
     }
@@ -73,6 +93,21 @@ class CommentServiceV2(
         } else {
             deleteRecursive(comment)
         }
+
+        outboxEventPublisher.publish(
+            EventType.COMMENT_DELETED,
+            CommentDeletedEventPayload(
+                commentId = comment.id.value,
+                content = comment.content,
+                path = comment.path,
+                articleId = comment.articleId,
+                writerId = comment.writerId,
+                deleted = comment.deleted,
+                createdAt = comment.createdAt,
+                articleCommentCount = count(comment.articleId)
+            ),
+            comment.articleId
+        )
     }
 
     private fun hasChildren(comment: CommentV2): Boolean {

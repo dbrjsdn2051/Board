@@ -6,6 +6,12 @@ spring:
     url: jdbc:mysql://localhost:3306/article
     username: root
     password: password
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  kafka:
+    bootstrap-servers: localhost:9092
 server:
   port: 9000
 

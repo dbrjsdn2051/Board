@@ -2,10 +2,10 @@ package com.example.hotarticle.service.eventhandler
 
 import com.example.hotarticle.repository.ArticleLikeCountRepository
 import com.example.hotarticle.utils.TimeCalculatorUtils
-import kuke.board.common.event.Event
-import kuke.board.common.event.EventPayload
-import kuke.board.common.event.EventType
-import kuke.board.common.event.payload.ArticleLikedEventPayload
+import board.common.event.Event
+import board.common.event.EventPayload
+import board.common.event.EventType
+import board.common.event.payload.ArticleLikedEventPayload
 import org.springframework.stereotype.Component
 
 @Component
@@ -13,8 +13,8 @@ class ArticleLikedEventHandler(
     private val articleLikeCountRepository: ArticleLikeCountRepository
 ) : EventHandler<ArticleLikedEventPayload> {
 
-    override fun handle(event: Event<ArticleLikedEventPayload>) {
-        val payload = event.payload!!
+    override fun handle(event: Event<out EventPayload>) {
+        val payload = event.payload!! as ArticleLikedEventPayload
         articleLikeCountRepository.createOrUpdate(
             payload.articleId,
             payload.articleLikeCount,
@@ -26,7 +26,7 @@ class ArticleLikedEventHandler(
         return EventType.ARTICLE_LIKED == event.type
     }
 
-    override fun findArticleId(event: Event<ArticleLikedEventPayload>): Long {
-        return event.payload!!.articleId
+    override fun findArticleId(event: Event<out EventPayload>): Long {
+        return (event.payload!! as ArticleLikedEventPayload).articleId
     }
 }

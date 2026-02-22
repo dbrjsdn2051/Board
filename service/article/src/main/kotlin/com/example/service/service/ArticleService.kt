@@ -6,7 +6,12 @@ import com.example.service.service.request.ArticleCreateRequest
 import com.example.service.service.request.ArticleUpdateRequest
 import com.example.service.service.response.ArticlePageResponse
 import com.example.service.service.response.ArticleResponse
-import kuke.board.common.snowflake.Snowflake
+import board.common.event.EventType
+import board.common.event.payload.ArticleCreatedEventPayload
+import board.common.event.payload.ArticleDeletedEventPayload
+import board.common.event.payload.ArticleUpdatedEventPayload
+import board.common.outboxmessagerelay.OutboxEventPublisher
+import board.common.snowflake.Snowflake
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -14,6 +19,7 @@ import java.time.LocalDateTime
 @Service
 class ArticleService (
     private val articleRepository: ArticleRepository,
+    private val outboxEventPublisher: OutboxEventPublisher,
 ){
     private val snowflake = Snowflake()
 
@@ -27,6 +33,22 @@ class ArticleService (
             createdAt = LocalDateTime.now()
             modifiedAt = LocalDateTime.now()
         }
+
+        outboxEventPublisher.publish(
+            EventType.ARTICLE_CREATED,
+            ArticleCreatedEventPayload(
+                articleId = article.id.value,
+                title = article.title,
+                content = article.content,
+                boardId = article.boardId,
+                writerId = article.writerId,
+                createdAt = article.createdAt,
+                modifiedAt = article.modifiedAt,
+                boardArticleCount = 0L
+            ),
+            article.boardId
+        )
+
         return ArticleResponse.from(article)
     }
 
@@ -42,6 +64,21 @@ class ArticleService (
         val article = Article.findById(articleId)
             ?: throw NoSuchElementException("Article not found: $articleId")
         article.update(request.title, request.content)
+
+        outboxEventPublisher.publish(
+            EventType.ARTICLE_UPDATED,
+            ArticleUpdatedEventPayload(
+                articleId = article.id.value,
+                title = article.title,
+                content = article.content,
+                boardId = article.boardId,
+                writerId = article.writerId,
+                createdAt = article.createdAt,
+                modifiedAt = article.modifiedAt
+            ),
+            article.boardId
+        )
+
         return ArticleResponse.from(article)
     }
 
@@ -49,6 +86,22 @@ class ArticleService (
     fun delete(articleId: Long) {
         val article = Article.findById(articleId)
             ?: throw NoSuchElementException("Article not found: $articleId")
+
+        outboxEventPublisher.publish(
+            EventType.ARTICLE_DELETED,
+            ArticleDeletedEventPayload(
+                articleId = article.id.value,
+                title = article.title,
+                content = article.content,
+                boardId = article.boardId,
+                writerId = article.writerId,
+                createdAt = article.createdAt,
+                modifiedAt = article.modifiedAt,
+                boardArticleCount = 0L
+            ),
+            article.boardId
+        )
+
         article.delete()
     }
 

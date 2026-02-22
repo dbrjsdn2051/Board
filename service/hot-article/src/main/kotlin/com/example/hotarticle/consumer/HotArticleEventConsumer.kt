@@ -1,8 +1,8 @@
 package com.example.hotarticle.consumer
 
 import com.example.hotarticle.service.HotArticleService
-import kuke.board.common.event.Event
-import kuke.board.common.event.EventType
+import board.common.event.Event
+import board.common.event.EventType
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment

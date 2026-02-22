@@ -3,8 +3,8 @@ package com.example.hotarticle.service
 import com.example.hotarticle.repository.ArticleCreatedTimeRepository
 import com.example.hotarticle.repository.HotArticleListRepository
 import com.example.hotarticle.service.eventhandler.EventHandler
-import kuke.board.common.event.Event
-import kuke.board.common.event.EventPayload
+import board.common.event.Event
+import board.common.event.EventPayload
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.LocalDateTime

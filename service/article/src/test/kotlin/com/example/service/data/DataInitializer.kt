@@ -1,7 +1,7 @@
 package com.example.service.data
 
 import com.example.service.entity.Articles
-import kuke.board.common.snowflake.Snowflake
+import board.common.snowflake.Snowflake
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

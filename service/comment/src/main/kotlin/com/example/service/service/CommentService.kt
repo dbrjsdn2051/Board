@@ -5,7 +5,7 @@ import com.example.service.repository.CommentRepository
 import com.example.service.service.request.CommentCreateRequest
 import com.example.service.service.response.CommentPageResponse
 import com.example.service.service.response.CommentResponse
-import kuke.board.common.snowflake.Snowflake
+import board.common.snowflake.Snowflake
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime

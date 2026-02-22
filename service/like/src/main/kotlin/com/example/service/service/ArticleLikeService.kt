@@ -5,7 +5,11 @@ import com.example.service.entity.ArticleLikeCount
 import com.example.service.repository.ArticleLikeCountRepository
 import com.example.service.repository.ArticleLikeRepository
 import com.example.service.service.response.ArticleLikeResponse
-import kuke.board.common.snowflake.Snowflake
+import board.common.event.EventType
+import board.common.event.payload.ArticleLikedEventPayload
+import board.common.event.payload.ArticleUnlikedEventPayload
+import board.common.outboxmessagerelay.OutboxEventPublisher
+import board.common.snowflake.Snowflake
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -14,7 +18,8 @@ import java.time.LocalDateTime
 class ArticleLikeService(
     private val snowflake: Snowflake = Snowflake(),
     private val articleLikeRepository: ArticleLikeRepository,
-    private val articleLikeCountRepository: ArticleLikeCountRepository
+    private val articleLikeCountRepository: ArticleLikeCountRepository,
+    private val outboxEventPublisher: OutboxEventPublisher,
 ) {
 
     @Transactional(readOnly = true)
@@ -26,7 +31,7 @@ class ArticleLikeService(
 
     @Transactional
     fun likePessimisticLock1(articleId: Long, userId: Long) {
-        ArticleLike.new(snowflake.nextId()) {
+        val articleLike = ArticleLike.new(snowflake.nextId()) {
             this.articleId = articleId
             this.userId = userId
             this.createdAt = LocalDateTime.now()
@@ -38,6 +43,18 @@ class ArticleLikeService(
                 likeCount = 1L
             }
         }
+
+        outboxEventPublisher.publish(
+            EventType.ARTICLE_LIKED,
+            ArticleLikedEventPayload(
+                articleLikeId = articleLike.id.value,
+                articleId = articleId,
+                userId = userId,
+                createdAt = articleLike.createdAt,
+                articleLikeCount = count(articleId)
+            ),
+            articleId
+        )
     }
 
     @Transactional
@@ -46,6 +63,18 @@ class ArticleLikeService(
             ?: return
         articleLikeCountRepository.decrease(articleId)
         articleLike.delete()
+
+        outboxEventPublisher.publish(
+            EventType.ARTICLE_UNLIKED,
+            ArticleUnlikedEventPayload(
+                articleLikeId = articleLike.id.value,
+                articleId = articleId,
+                userId = userId,
+                createdAt = articleLike.createdAt,
+                articleLikeCount = count(articleId)
+            ),
+            articleId
+        )
     }
 
     @Transactional

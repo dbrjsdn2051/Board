@@ -4,9 +4,9 @@ import com.example.hotarticle.client.ArticleClient
 import com.example.hotarticle.repository.HotArticleListRepository
 import com.example.hotarticle.service.eventhandler.EventHandler
 import com.example.hotarticle.service.response.HotArticleResponse
-import kuke.board.common.event.Event
-import kuke.board.common.event.EventPayload
-import kuke.board.common.event.EventType
+import board.common.event.Event
+import board.common.event.EventPayload
+import board.common.event.EventType
 import org.springframework.stereotype.Service
 
 @Service

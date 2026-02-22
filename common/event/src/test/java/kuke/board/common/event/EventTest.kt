@@ -1,6 +1,8 @@
 package kuke.board.common.event
 
-import kuke.board.common.event.payload.ArticleCreatedEventPayload
+import board.common.event.Event
+import board.common.event.EventType
+import board.common.event.payload.ArticleCreatedEventPayload
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime

@@ -9,7 +9,7 @@ import java.time.Duration
 class ArticleViewService(
     private val articleViewCountRepository: ArticleViewCountRepository,
     private val articleViewCountBackUpProcessor: ArticleViewCountBackUpProcessor,
-    private val articleViewDistributedLockRepository: ArticleViewDistributedLockRepository
+    private val articleViewDistributedLockRepository: ArticleViewDistributedLockRepository,
 ) {
 
     companion object {
@@ -24,7 +24,7 @@ class ArticleViewService(
 
         val count = articleViewCountRepository.increase(articleId)
         if ((count % BACK_UP_BATCH_SIZE).toInt() == 0) {
-            articleViewCountBackUpProcessor.backUp(articleId, userId)
+            articleViewCountBackUpProcessor.backUp(articleId, count)
         }
 
         return count
